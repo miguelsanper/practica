@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+
 use Livewire\Component;
 use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
@@ -10,6 +11,7 @@ use Livewire\WithPagination;
 
 class CategoriesController extends Component
 {
+
     use WithFileUploads;
     use WithPagination;
 
@@ -41,11 +43,49 @@ class CategoriesController extends Component
 
     public function Edit($id)
     {
-        $record = Category::find($id);
+        $record = Category::find($id, ['id', 'name', 'image']);
         $this->name = $record->name;
         $this->selected_id = $record->id;
         $this->image = null;
 
-        $this->dispatch('show-modal', 'show modal!');
+        $this->emit('show-modal', 'show modal!');
+    }
+
+    function Store()
+    {
+        $rules = [
+            'name' => 'required|unique:categories|min:3'
+        ];
+        $messages = [
+            'name.required' => 'Nombre de la categoría es requerido',
+            'name.unique' => 'Ya existe el nombre de la categoría',
+            'name.min' => 'El nombre de la categoría debe tener al menos 3 caracteres'
+        ];
+
+        $this->validate($rules, $messages);
+
+        $category = Category::create([
+            'name' => $this->name
+        ]);
+
+        $customFileName;
+        if($this->image)
+        {
+            $customFileName = uniqid() . '_.' . $this->image->extension();
+            $this->image->storeAs('public/categories', $customFileName);
+            $category->image = $customFileName;
+            $category->save();
+        }
+
+        $this->resetUI();
+        $this->emit('category-added', 'Categoría Registrada');
+    }
+
+    public function resetUI()
+    {
+        $this->name = '';
+        $this->image = null;
+        $this->search = '';
+        $this->selected_id = 0;
     }
 }

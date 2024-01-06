@@ -25,4 +25,4 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::get('/blank', Blank::class);
 
-Route::get('categories', CategoriesController::class);
+Route::get('categor', CategoriesController::class);

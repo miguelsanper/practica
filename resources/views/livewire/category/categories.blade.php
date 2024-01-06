@@ -52,7 +52,7 @@
                         </tbody>
                     </table>
 
-                   
+                    {{$categories->links()}}
                 </div>
             </div>
         </div>
@@ -64,6 +64,9 @@
     document.addEventListener('DOMContentLoaded', function(){
         window.livewire.on('show-modal', msg =>{
             $('#theModal').modal('show')
+        });
+        window.livewire.on('category-added', msg =>{
+                $('#theModal').modal('hide')
         });
     });
 </script>
