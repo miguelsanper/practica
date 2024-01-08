@@ -31,7 +31,9 @@
                                 <td><h6>{{$category->name}}</h6></td>
                                 <td class="text-center">
                                     <span>
-                                        <img src="{{ asset('storage/categories/' .$category->image) }}" alt="imagen de ejemplo" height="70" width="80" class="rounded">
+                                        <img src="{{ asset('storage/categories/' . $category->image) }}" alt="imagen de ejemplo" height="70" width="80" class="rounded">
+
+                                        <p>{{ $category->image }}</p>
                                     </span>
                                 </td>
 
@@ -68,5 +70,27 @@
         window.livewire.on('category-added', msg =>{
                 $('#theModal').modal('hide')
         });
+        window.livewire.on('category-updated', msg =>{
+                $('#theModal').modal('hide')
+        });
     });
+
+    function Confirm(id)
+    {
+        swal({
+            title: 'CONFIRMAR',
+            text: '¿CONFIRMAS ELIMINAR EL REGISTRO?',
+            type: 'warning',
+            showCancelButton: true,
+            cancelButtonText: 'Cerrar',
+            cancelButtonColor: '#fff',
+            confirmButtonColor: '#383F5C',
+            confirmButtonText: 'Aceptar'
+        }).then(function(result) {
+            if(result.value){
+                window.Livewire.emit('deleteRow', id)
+                swal.close()
+            }
+        })
+    }
 </script>

@@ -81,11 +81,72 @@ class CategoriesController extends Component
         $this->emit('category-added', 'Categoría Registrada');
     }
 
+    public function Update()
+    {
+        $rules = [
+            'name' => 'required|unique:categories,name,{$this->selected_id}|min:3'
+        ];
+
+        $messages = [
+            'name.required' => 'Nombre de la categoría es requerido',
+            'name.unique' => 'Ya existe el nombre de la categoría',
+            'name.min' => 'El nombre de la categoría debe tener al menos 3 caracteres'
+        ];
+
+        $this->validate($rules, $messages);
+
+        $category = Category::find($this->selected_id);
+        $category->update([
+            'name' => $this->name
+        ]);
+
+        // $customFileName;
+        if($this->image)
+        {
+            $customFileName = uniqid() . '_.' . $this->image->extension();
+            $this->image->storeAs('public/categories', $customFileName);
+            $imageName = $category->image;
+            $category->image = $customFileName;
+            $category->save();
+
+            if($imageName != null)
+            {
+                if(file_exists('storage/categories' . $imageName))
+                {
+                    unlink('storage/categories' . $imageName);
+                }
+            }
+        }
+
+        $this->resetUI();
+        $this->emit('category-updated', 'Categoría Actualizada');
+    }
+
     public function resetUI()
     {
         $this->name = '';
         $this->image = null;
         $this->search = '';
         $this->selected_id = 0;
+    }
+
+    protected $listeners = [
+        'deleteRow' => 'Destroy'
+    ];
+
+    public function Destroy(Category $category)
+    {
+        // $category = Category::find($id);
+        // dd($category);
+        $imageName = $category->image;
+        $category->delete();
+
+        if($imageName != null)
+        {
+            unlink('storage/categories/' . $imageName);     
+        }
+
+        $this->resetUI();
+        $this->emit('category-deleted', 'Categoría Eliminada');
     }
 }
